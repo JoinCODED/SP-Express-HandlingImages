@@ -19,20 +19,15 @@ exports.productListFetch = async (req, res, next) => {
   }
 };
 
-exports.productDetailFetch = async (req, res, next) => {
-  console.log("product", req.product.id);
-  res.status(200).json(req.product);
-};
+
 exports.productUpdate = async (req, res, next) => {
   try {
-    if (req.file) {
-      req.body.image = `${req.protocol}://${req.get("host")}/${req.file.path}`;
-    }
+   
     const product = await Product.findByIdAndUpdate(
       req.product,
       req.body,
       { new: true, runValidators: true } // returns the updated product
-    ).populate("shop");
+    )
     return res.status(200).json(product);
   } catch (error) {
     next(error);
