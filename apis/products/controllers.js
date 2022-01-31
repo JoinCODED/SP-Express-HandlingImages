@@ -9,6 +9,16 @@ exports.fetchProduct = async (productId, next) => {
   }
 };
 
+exports.productCreate = async (req,res,next) =>{
+   try {
+    const product = await Product.create(req.body)
+    return res.json(product);
+  } catch (error) {
+    next(error);
+    // return res.status(500).json({ message: error.message });
+  }
+}
+
 exports.productListFetch = async (req, res, next) => {
   try {
     const products = await Product.find().populate("shop");
