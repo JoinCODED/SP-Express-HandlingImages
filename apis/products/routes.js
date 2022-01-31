@@ -1,5 +1,5 @@
 const express = require("express");
-const upload = require("../../middleware/multer");
+
 const {
   productListFetch,
   productCreate,
@@ -27,7 +27,7 @@ router.get("/", productListFetch);
 
 router.get("/:productId", productDetailFetch);
 
-router.put("/:productId", upload.single("image"), productUpdate);
+router.put("/:productId", productUpdate);
 
 router.delete("/:productId", productDelete);
 
