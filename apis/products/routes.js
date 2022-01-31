@@ -1,19 +1,33 @@
 const express = require("express");
+const upload = require("../../middleware/multer");
 const {
   productListFetch,
   productCreate,
   productDelete,
   productUpdate,
+  productDetailFetch,
+  fetchProduct,
 } = require("./controllers");
 
 // Create a mini express application
 const router = express.Router();
 
-router.post("/", productCreate);
+// Param Middleware
+router.param("productId", async (req, res, next, productId) => {
+  const product = await fetchProduct(productId, next);
+  if (product) {
+    req.product = product;
+    next();
+  } else {
+    next({ status: 404, message: "Product Not Found!" });
+  }
+});
 
 router.get("/", productListFetch);
 
-router.put("/:productId", productUpdate);
+router.get("/:productId", productDetailFetch);
+
+router.put("/:productId", upload.single("image"), productUpdate);
 
 router.delete("/:productId", productDelete);
 

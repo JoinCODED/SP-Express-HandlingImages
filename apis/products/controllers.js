@@ -1,54 +1,50 @@
-const products = require("../../products");
 const Product = require("../../db/models/Product");
-const { findByIdAndUpdate } = require("../../db/models/Product");
 
-exports.productListFetch = async (req, res) => {
+exports.fetchProduct = async (productId, next) => {
   try {
-    const products = await Product.find();
+    const product = await Product.findById(productId);
+    return product;
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.productListFetch = async (req, res, next) => {
+  try {
+    const products = await Product.find().populate("shop");
     return res.json(products);
   } catch (error) {
-    return res.status(500).json({ message: error.message });
+    next(error);
+    // return res.status(500).json({ message: error.message });
   }
 };
 
-exports.productCreate = async (req, res) => {
-  try {
-    const newProduct = await Product.create(req.body);
-    return res.status(201).json(newProduct);
-  } catch (error) {
-    return res.status(500).json({ message: error.message });
-  }
+exports.productDetailFetch = async (req, res, next) => {
+  console.log("product", req.product.id);
+  res.status(200).json(req.product);
 };
-
-exports.productUpdate = async (req, res) => {
-  const { productId } = req.params;
+exports.productUpdate = async (req, res, next) => {
   try {
+    if (req.file) {
+      req.body.image = `${req.protocol}://${req.get("host")}/${req.file.path}`;
+    }
     const product = await Product.findByIdAndUpdate(
-      { _id: productId },
+      req.product,
       req.body,
       { new: true, runValidators: true } // returns the updated product
-    );
-    if (product) {
-      return res.status(200).json(product);
-    } else {
-      return res.status(404).json({ message: "Product Not Found" });
-    }
+    ).populate("shop");
+    return res.status(200).json(product);
   } catch (error) {
-    return res.status(500).json({ message: error.message });
+    next(error);
   }
 };
 
-exports.productDelete = async (req, res) => {
-  const { productId } = req.params;
+exports.productDelete = async (req, res, next) => {
   try {
-    const product = await Product.findByIdAndDelete({ _id: productId });
-    if (product) {
-      return res.status(204).end();
-    } else {
-      return res.status(404).json({ message: "Product not found!" });
-    }
+    await req.product.remove();
+    res.status(204).end();
   } catch (error) {
-    return res.status(500).json({ message: error.message });
+    next(error);
   }
 };
 
