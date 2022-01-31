@@ -1,8 +1,6 @@
 const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
-const path = require("path");
-const passport = require("passport");
 
 // Routes
 const productRoutes = require("./apis/products/routes");
@@ -19,7 +17,7 @@ const app = express();
 connectDB();
 
 // Middleware
-app.use(cors());
+
 app.use(express.json());
 app.use(logger);
 
